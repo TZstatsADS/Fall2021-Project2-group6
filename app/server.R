@@ -198,6 +198,12 @@ shinyServer(function(input, output) {
         }
         
     }) #right map plot
+    
+    
+    ## Shelter plot section
+    shelter_data <- read.csv('../data/DHS_Daily_Report.csv')
+    shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
+    output$shelter_plot <- renderPlot(plot(shelter_data$Date.of.Census, shelter_data$Total.Individuals.in.Shelter))
 
 })
 
