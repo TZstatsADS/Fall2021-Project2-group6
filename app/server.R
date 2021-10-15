@@ -213,30 +213,33 @@ shinyServer(function(input, output) {
         'adults'='blue',
         'children'='green'
       )) +
-      labs(title='Overview: COVID-19 has caused a fall in shelter entry')
+      labs(title='Overview: COVID-19 has caused a fall in shelter occupancy')
     
-    adult_plot <- ggplot(shelter_data %>% mutate(
-      single_adults_pct=Total.Single.Adults.in.Shelter / Total.Adults.in.Shelter,
-      adults_with_adults_pct=Individuals.in.Adult.Families.in.Shelter / Total.Adults.in.Shelter,
-      adults_with_children_pct=Adults.in.Families.with.Children.in.Shelter / Total.Adults.in.Shelter
+    family_plot <- ggplot(shelter_data %>% mutate(
+      single_adults_pct=Total.Single.Adults.in.Shelter / Total.Individuals.in.Shelter,
+      adults_with_adults_pct=Individuals.in.Adult.Families.in.Shelter / Total.Individuals.in.Shelter,
+      adults_with_children_pct=Adults.in.Families.with.Children.in.Shelter / Total.Individuals.in.Shelter,
+      children_pct=Total.Children.in.Shelter / Total.Individuals.in.Shelter
     )) + 
       geom_line(aes(x=Date.of.Census, y=single_adults_pct, color='Single Adults')) +
       geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults with Adults')) +
       geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults with Children')) +
+      geom_line(aes(x=Date.of.Census, y=children_pct, color='Children')) +
       scale_color_manual(values=c(
         'Single Adults'='red',
         'Adults with Children'='blue',
-        'Adults with Adults'='green')) +
+        'Adults with Adults'='green',
+        'Children'='purple')) +
       labs(
-        title='COVID-19 changed the variety of adults who entered homeless shelters',
-        subtitle='New York City seemed to provide better support for homeless families than for single homeless individuals.',
+        title='COVID-19 changed the variety of inviduals who entered homeless shelters',
+        subtitle='While the overall occupancy of homeless shelters fell during the pandemic, the proportion of single adults has risen to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
         color='Family situation') +
-      xlab('Date of Census') + ylab('Percentage of adults in different family situations')
+      xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
     output$shelter_plot <- renderPlot(
       switch(input$shelter_plot_choice,
              overview=overview_plot,
-             adult=adult_plot,
+             family=family_plot,
              children=ggplot())
     )
 

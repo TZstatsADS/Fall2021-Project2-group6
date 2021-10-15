@@ -71,9 +71,9 @@ shinyUI(
         tabPanel("Homeless Shelters",
                  sidebarPanel(
                    radioButtons('shelter_plot_choice',
-                                'Shelter entrant categorization',
-                                c('Overview of entrants'='overview',
-                                  'Family situations of adult entrants'='adult'))
+                                'Shelter occupant categorization',
+                                c('Overview of occupants'='overview',
+                                  'Family situations of occupants'='family'))
                  ),
                  mainPanel(plotOutput('shelter_plot')))
 
