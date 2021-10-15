@@ -204,6 +204,17 @@ shinyServer(function(input, output) {
     shelter_data <- read.csv('../data/DHS_Daily_Report.csv')
     shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
     
+    overview_plot <- ggplot(shelter_data) + 
+      geom_line(aes(x=Date.of.Census, y=Total.Individuals.in.Shelter, color='total')) +
+      geom_line(aes(x=Date.of.Census, y=Total.Adults.in.Shelter, color='adults')) +
+      geom_line(aes(x=Date.of.Census, y=Total.Children.in.Shelter, color='children')) +
+      scale_color_manual(values=c(
+        'total'='red',
+        'adults'='blue',
+        'children'='green'
+      )) +
+      labs(title='Overview: COVID-19 has caused a fall in shelter entry')
+    
     adult_plot <- ggplot(shelter_data %>% mutate(
       single_adults_pct=Total.Single.Adults.in.Shelter / Total.Adults.in.Shelter,
       adults_with_adults_pct=Individuals.in.Adult.Families.in.Shelter / Total.Adults.in.Shelter,
@@ -212,7 +223,10 @@ shinyServer(function(input, output) {
       geom_line(aes(x=Date.of.Census, y=single_adults_pct, color='Single Adults')) +
       geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults with Adults')) +
       geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults with Children')) +
-      scale_color_manual(values=c('Single Adults'='green', 'Adults with Children'='blue', 'Adults with Adults'='purple')) +
+      scale_color_manual(values=c(
+        'Single Adults'='red',
+        'Adults with Children'='blue',
+        'Adults with Adults'='green')) +
       labs(
         title='COVID-19 changed the variety of adults who entered homeless shelters',
         subtitle='New York City seemed to provide better support for homeless families than for single homeless individuals.',
@@ -220,7 +234,10 @@ shinyServer(function(input, output) {
       xlab('Date of Census') + ylab('Percentage of adults in different family situations')
     
     output$shelter_plot <- renderPlot(
-      switch(input$shelter_plot_choice, adult=adult_plot, children=ggplot())
+      switch(input$shelter_plot_choice,
+             overview=overview_plot,
+             adult=adult_plot,
+             children=ggplot())
     )
 
 })
