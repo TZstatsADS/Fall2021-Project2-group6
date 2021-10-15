@@ -203,7 +203,22 @@ shinyServer(function(input, output) {
     ## Shelter plot section
     shelter_data <- read.csv('../data/DHS_Daily_Report.csv')
     shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
-    output$shelter_plot <- renderPlot(plot(shelter_data$Date.of.Census, shelter_data$Total.Individuals.in.Shelter))
+    output$adult_plot <- renderPlot(
+      ggplot(shelter_data %>% mutate(
+        single_adults_pct=Total.Single.Adults.in.Shelter / Total.Adults.in.Shelter,
+        adults_with_adults_pct=Individuals.in.Adult.Families.in.Shelter / Total.Adults.in.Shelter,
+        adults_with_children_pct=Adults.in.Families.with.Children.in.Shelter / Total.Adults.in.Shelter
+      )) + 
+        geom_line(aes(x=Date.of.Census, y=single_adults_pct, color='Single Adults')) +
+        geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults with Adults')) +
+        geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults with Children')) +
+        scale_color_manual(values=c('Single Adults'='green', 'Adults with Children'='blue', 'Adults with Adults'='purple')) +
+        labs(
+          title='COVID-19 changed the variety of adults who entered homeless shelters',
+          subtitle='New York City seemed to provide better support for homeless families than for single homeless individuals.',
+          color='Family situation') +
+        xlab('Date of Census') + ylab('Percentage of adults in different family situations')
+    )
 
 })
 

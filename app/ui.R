@@ -68,7 +68,7 @@ shinyUI(
                             ) #Maps - Div closing
                         ), #tabPanel maps closing
    
-        tabPanel("Homeless Shelters", mainPanel(plotOutput('shelter_plot')))
+        tabPanel("Homeless Shelters", mainPanel(plotOutput('adult_plot')))
 
     ) #navbarPage closing  
 ) #Shiny UI closing    
