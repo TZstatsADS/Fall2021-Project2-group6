@@ -222,13 +222,13 @@ shinyServer(function(input, output) {
       children_pct=Total.Children.in.Shelter / Total.Individuals.in.Shelter
     )) + 
       geom_line(aes(x=Date.of.Census, y=single_adults_pct, color='Single Adults')) +
-      geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults with Adults')) +
-      geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults with Children')) +
+      geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults in adult families')) +
+      geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults in families with children')) +
       geom_line(aes(x=Date.of.Census, y=children_pct, color='Children')) +
       scale_color_manual(values=c(
         'Single Adults'='red',
-        'Adults with Children'='blue',
-        'Adults with Adults'='green',
+        'Adults in families with children'='blue',
+        'Adults in adult families'='green',
         'Children'='purple')) +
       labs(
         title='COVID-19 changed the variety of inviduals who entered homeless shelters',
@@ -236,11 +236,24 @@ shinyServer(function(input, output) {
         color='Family situation') +
       xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
+    adult_plot <- ggplot(shelter_data) +
+      geom_line(aes(x=Date.of.Census, y=Total.Single.Adults.in.Shelter, color='Total Single Adults')) +
+      geom_line(aes(x=Date.of.Census, y=Single.Adult.Men.in.Shelter, color='Single Men')) +
+      geom_line(aes(x=Date.of.Census, y=Single.Adult.Women.in.Shelter, color='Single Women')) +
+      scale_color_manual(values=c(
+        'Total Single Adults'='red',
+        'Single Men'='blue',
+        'Single Women'='green'
+      )) +
+      labs(
+        title="The pandemic's increase of single adults in shelters is completely driven by the rise in the occupancy of single men.",
+        subtitle='This trend did not continue into 2021, when COVID-19 began to subside.\nThis explains why 2021 has shown a steeper decline in overall shelter occupancy than 2020.')
+    
     output$shelter_plot <- renderPlot(
       switch(input$shelter_plot_choice,
              overview=overview_plot,
              family=family_plot,
-             children=ggplot())
+             adult=adult_plot)
     )
 
 })

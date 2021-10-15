@@ -73,7 +73,8 @@ shinyUI(
                    radioButtons('shelter_plot_choice',
                                 'Shelter occupant categorization',
                                 c('Overview of occupants'='overview',
-                                  'Family situations of occupants'='family'))
+                                  'Family situations of occupants'='family',
+                                  'Single adult breakdown'='adult'))
                  ),
                  mainPanel(plotOutput('shelter_plot')))
 
