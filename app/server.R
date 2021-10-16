@@ -203,7 +203,58 @@ shinyServer(function(input, output) {
     ## Shelter plot section
     shelter_data <- read.csv('../data/DHS_Daily_Report.csv')
     shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
-    output$shelter_plot <- renderPlot(plot(shelter_data$Date.of.Census, shelter_data$Total.Individuals.in.Shelter))
+    
+    overview_plot <- ggplot(shelter_data) + 
+      geom_line(aes(x=Date.of.Census, y=Total.Individuals.in.Shelter, color='total')) +
+      geom_line(aes(x=Date.of.Census, y=Total.Adults.in.Shelter, color='adults')) +
+      geom_line(aes(x=Date.of.Census, y=Total.Children.in.Shelter, color='children')) +
+      scale_color_manual(values=c(
+        'total'='red',
+        'adults'='blue',
+        'children'='green'
+      )) +
+      labs(title='Overview: COVID-19 has caused a fall in shelter occupancy')
+    
+    family_plot <- ggplot(shelter_data %>% mutate(
+      single_adults_pct=Total.Single.Adults.in.Shelter / Total.Individuals.in.Shelter,
+      adults_with_adults_pct=Individuals.in.Adult.Families.in.Shelter / Total.Individuals.in.Shelter,
+      adults_with_children_pct=Adults.in.Families.with.Children.in.Shelter / Total.Individuals.in.Shelter,
+      children_pct=Total.Children.in.Shelter / Total.Individuals.in.Shelter
+    )) + 
+      geom_line(aes(x=Date.of.Census, y=single_adults_pct, color='Single Adults')) +
+      geom_line(aes(x=Date.of.Census, y=adults_with_adults_pct, color='Adults in adult families')) +
+      geom_line(aes(x=Date.of.Census, y=adults_with_children_pct, color='Adults in families with children')) +
+      geom_line(aes(x=Date.of.Census, y=children_pct, color='Children')) +
+      scale_color_manual(values=c(
+        'Single Adults'='red',
+        'Adults in families with children'='blue',
+        'Adults in adult families'='green',
+        'Children'='purple')) +
+      labs(
+        title='COVID-19 changed the variety of inviduals who entered homeless shelters',
+        subtitle='While the overall occupancy of homeless shelters fell during the pandemic, the proportion of single adults has risen to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
+        color='Family situation') +
+      xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
+    
+    adult_plot <- ggplot(shelter_data) +
+      geom_line(aes(x=Date.of.Census, y=Total.Single.Adults.in.Shelter, color='Total Single Adults')) +
+      geom_line(aes(x=Date.of.Census, y=Single.Adult.Men.in.Shelter, color='Single Men')) +
+      geom_line(aes(x=Date.of.Census, y=Single.Adult.Women.in.Shelter, color='Single Women')) +
+      scale_color_manual(values=c(
+        'Total Single Adults'='red',
+        'Single Men'='blue',
+        'Single Women'='green'
+      )) +
+      labs(
+        title="The pandemic's increase of single adults in shelters is completely driven by the rise in the occupancy of single men.",
+        subtitle='This trend did not continue into 2021, when COVID-19 began to subside.\nThis explains why 2021 has shown a steeper decline in overall shelter occupancy than 2020.')
+    
+    output$shelter_plot <- renderPlot(
+      switch(input$shelter_plot_choice,
+             overview=overview_plot,
+             family=family_plot,
+             adult=adult_plot)
+    )
 
 })
 

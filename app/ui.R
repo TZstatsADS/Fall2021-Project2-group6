@@ -68,7 +68,15 @@ shinyUI(
                             ) #Maps - Div closing
                         ), #tabPanel maps closing
    
-        tabPanel("Homeless Shelters", mainPanel(plotOutput('shelter_plot')))
+        tabPanel("Homeless Shelters",
+                 sidebarPanel(
+                   radioButtons('shelter_plot_choice',
+                                'Shelter occupant categorization',
+                                c('Overview of occupants'='overview',
+                                  'Family situations of occupants'='family',
+                                  'Single adult breakdown'='adult'))
+                 ),
+                 mainPanel(plotOutput('shelter_plot')))
 
     ) #navbarPage closing  
 ) #Shiny UI closing    
