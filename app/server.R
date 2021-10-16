@@ -35,9 +35,13 @@ if (!require("leafsync")) {
     install.packages("leafsync")
     library(leafsync)
 }
+if (!require("ggplot2")) {
+  install.packages("ggplot2")
+  library(ggplot2)
+}
 
 #Data Processing
-total_citi_bike_df = read.csv('../data/citibike_data.csv')
+total_citi_bike_df = read.csv('data/citibike_data.csv')
 ##compute the daily in and out difference for the station
 total_citi_bike_df$day_diff = total_citi_bike_df$endcount - total_citi_bike_df$startcount
 #assign each column to weekend or weekday
@@ -201,7 +205,7 @@ shinyServer(function(input, output) {
     
     
     ## Shelter plot section
-    shelter_data <- read.csv('../data/DHS_Daily_Report.csv')
+    shelter_data <- read.csv('data/DHS_Daily_Report.csv')
     shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
     
     overview_plot <- ggplot(shelter_data) + 
