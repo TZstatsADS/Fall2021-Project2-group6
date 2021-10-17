@@ -20,54 +20,49 @@ if (!require("leaflet.extras")) {
   library(leaflet.extras)
 }
 
+vars <- c(
+  "Pre-Covid" = "pre-covid",
+  "During Covid" = "during-covid",
+  "Post-Covid" = "post-covid"
+)
+
+complaint_types <- c(
+  "General" = "General",
+  "Traffic" = "Traffic",
+  "Environment" = "Environment",
+  "Noise" = "Noise",
+  "Neighborhood Condition" = "Neighborhood Condition",
+  "Infrastructure Condition" = "Infrastructure Condition",
+  "Virus (Covid-19)" = "Virus (Covid-19)"
+)
+
 # Define UI for application that draws a histogram
 shinyUI(
-    navbarPage(strong("Citi Bike Study",style="color: white;"), 
+    navbarPage(strong("Covid 19 Influence Explorer",style="color: white;"),
                theme=shinytheme("cerulean"), # select your themes https://rstudio.github.io/shinythemes/
 #------------------------------- tab panel - Maps ---------------------------------
-                tabPanel("Maps",
-                         icon = icon("map-marker-alt"), #choose the icon for
-                         div(class = 'outer',
-                        # side by side plots
-                        fluidRow(
-                                splitLayout(cellWidths = c("50%", "50%"), 
-                                             leafletOutput("left_map",width="100%",height=1200),
-                                             leafletOutput("right_map",width="100%",height=1200))),
-                        #control panel on the left
-                        absolutePanel(id = "control", class = "panel panel-default", fixed = TRUE, draggable = TRUE,
-                                      top = 200, left = 50, right = "auto", bottom = "auto", width = 250, height = "auto",
-                                      tags$h4('Citi Bike Activity Comparison'), 
-                                      tags$br(),
-                                      tags$h5('Pre-covid(Left) Right(Right)'), 
-                                      prettyRadioButtons(
-                                                      inputId = "adjust_score",
-                                                      label = "Score List:", 
-                                                      choices = c("start_cnt", 
-                                                                  "end_cnt", 
-                                                                  "day_diff_absolute",
-                                                                  "day_diff_percentage"),
-                                                      inline = TRUE, 
-                                                      status = "danger",
-                                                      fill = TRUE
-                                                        ),
-                                      awesomeRadio("adjust_time", 
-                                                   label="Time",
-                                                    choices =c("Overall",
-                                                               "Weekday", 
-                                                               "Weekend"), 
-                                                    selected = "Overall",
-                                                    status = "warning"),
-                                      # selectInput('adjust_weather',
-                                      #             label = 'Adjust for Weather',
-                                      #             choices = c('Yes','No'), 
-                                      #             selected = 'Yes'
-                                      #             ),
-                                      style = "opacity: 0.80"
-                                      
-                                ), #Panel Control - Closing
-                            ) #Maps - Div closing
-                        ), #tabPanel maps closing
-   
+        tabPanel("311 Complaint Map",icon = icon("map-marker-alt"),
+             div(class="outer",
+                 tags$head(
+                   includeCSS('../lib/styles.css')
+                 ),
+                 leafletOutput("map", width="100%", height="100%"),
+                 ## Control panel to select the covid period and complaint types
+                 absolutePanel(id = "controls", class = "panel panel-default", fixed = TRUE,
+                               draggable = TRUE, top = 60, left = "auto", right = 20, bottom = "auto",
+                               width = 330, height = "auto",
+                               
+                               h2("Complaint Explorer"),
+                               
+                               selectInput("covid", "Covid Period", vars, selected = "during-covid"),
+                               checkboxGroupInput("checkGroup", "Complaint Type",
+                                                  choices = complaint_types,selected = complaint_types),
+                 ),
+             )
+        ),
+
+
+
         tabPanel("Homeless Shelters",
                  sidebarPanel(
                    radioButtons('shelter_plot_choice',
@@ -76,7 +71,10 @@ shinyUI(
                                   'Family situations of occupants'='family',
                                   'Single adult breakdown'='adult'))
                  ),
-                 mainPanel(plotOutput('shelter_plot')))
+                 mainPanel(plotOutput('shelter_plot'))),
+
+        conditionalPanel("false", icon("crosshair"))
+
 
     ) #navbarPage closing  
 ) #Shiny UI closing    
