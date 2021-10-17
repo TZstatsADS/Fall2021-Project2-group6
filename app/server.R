@@ -125,8 +125,8 @@ shinyServer(function(input, output) {
         'Adults in adult families'='green',
         'Children'='purple')) +
       labs(
-        title='COVID-19 changed the variety of inviduals who entered homeless shelters',
-        subtitle='While the overall occupancy of homeless shelters fell during the pandemic, the proportion of single adults has risen to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
+        title='The pandemic has caused less families and more single adults to enter homeless shelters',
+        subtitle='The decrease in family occupancy in shelters during the pandemic explains the fall in overall occupancy.\nAt the same time, the proportion of single adults has risen significantly to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
         color='Family situation') +
       xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
