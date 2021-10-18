@@ -150,6 +150,131 @@ shinyServer(function(input, output) {
              adult=adult_plot)
     )
 
+    ###______hospital section___________
+    covid_data <- read.csv("data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
+    covid_data$DATE_OF_INTEREST <- as.Date(covid_data$DATE_OF_INTEREST, '%m/%d/%Y')
+
+    #Select subset of data by borough
+    subsetborough <- function(subset){
+      if (subset == "Bronx"){
+        cov_data <- covid_data[,c(1,12:21)]
+      }
+      else if(subset == "Manhattan"){
+        cov_data <- covid_data[,c(1,32:41)]
+      }
+      else if(subset == "Queens"){
+        cov_data <- covid_data[,c(1,42:51)]
+      }
+      else if(subset == "Brooklyn"){
+        cov_data <- covid_data[,c(1,22:31)]
+      }
+      else if(subset == "Staten Island"){
+        cov_data <- covid_data[,c(1,52:61)]
+      }
+      return(cov_data)
+    }
+
+    # Interactive time series plot with highcharter
+
+
+    observe({
+      # Render highchart outcome
+      output$his_covid <- renderHighchart({
+        # subset data and make it tidy
+        data_by_day_sub <- subsetborough(input$covid_borough) %>%
+          tidyr::pivot_longer(
+            cols = -DATE_OF_INTEREST,
+            names_to = "line_var",
+            values_to = "value") %>%
+          dplyr::mutate(line_var = as.factor(line_var))
+
+        # ---------------filter variables--------------------------------------------------
+        # If no selection, generate a dataframe of zeros to avoid errors
+        if (!input$cases_summary & !input$death_summary & !input$Hospitalized_summary){
+          data_by_day_filter <- data_by_day_sub
+          data_by_day_filter$value <- 0
+        } else {
+          if (input$cases_summary) {
+            df1 <- data_by_day_sub %>%
+              dplyr::filter(stringr::str_detect(line_var,"CASE_COUNT"))
+          } else {df1 <- data.frame()}
+          if (input$death_summary) {
+            df2 <- data_by_day_sub %>%
+              dplyr::filter(stringr::str_detect(line_var,"DEATH_COUNT"))
+          } else {df2 <- data.frame()}
+          if (input$Hospitalized_summary) {
+            df3 <- data_by_day_sub %>%
+              dplyr::filter(stringr::str_detect(line_var,"HOSPITALIZED_COUNT"))
+          } else {df3 <- data.frame()}
+          # aggregated dataframe for plot
+          data_by_day_filter = rbind(df1, df2, df3)
+        }
+
+        hchart(data_by_day_filter, "line",
+               hcaes(x = DATE_OF_INTEREST, y = value, group = line_var)) %>%
+          hc_chart(zoomType = "x") %>%
+
+          hc_legend(align = "center", verticalAlign = "bottom",layout = "horizontal") %>%
+          hc_xAxis(title = list(text = "Date"),
+                   labels = list(format = '{value:%b %d %y}')) %>%
+          hc_yAxis(title = list(text = "Count"),
+                   tickInterval = 400,
+                   max = max(data_by_day_filter$value)) %>%
+          hc_title(text = paste0("<b>Covid-19 Summary for ",input$covid_borough, ", NY by Date</b>")) %>%
+
+          hc_plotOptions(area = list(lineWidth = 0.5)) %>%
+          hc_exporting(enabled = TRUE)
+      })
+    })
+
+
+    #____________Doses_by_date__________________
+    dose_data <- read.csv("data/doses-by-day.csv")
+    dose_data$DATE <- as.Date(dose_data$DATE, '%m/%d/%Y')
+    #Select subset of data by Dose 1 or Dose 2 or all_doses
+    subsetdose <- function(subgroup){
+      if(subgroup == "dose1"){
+        data <- dose_data[,c(1,2)]
+      }
+      else if(subgroup == "dose2"){
+        data <- dose_data[,c(1,4)]
+      }
+      else if(subgroup == "single"){
+        data <- dose_data[,c(1,6)]
+      }
+      else if(subgroup == "alldose"){
+        data <- dose_data[,c(1,8)]
+      }
+      return(data)
+    }
+    
+    observe({
+      output$his_dose <- renderHighchart({
+        # subset data and make it tidy
+        dose_by_day_sub <- subsetdose(input$covid_dose) %>%
+        #dose_by_day_sub <- subsetdose("alldose") %>%
+          tidyr::pivot_longer(
+            cols = -DATE,
+            names_to = "line_var_1",
+            values_to = "value_1") %>%
+          dplyr::mutate(line_var_1 = as.factor(line_var_1))
+        
+        hchart(dose_by_day_sub, "line",
+               hcaes(x = DATE, y = value_1, group = line_var_1)) %>%
+          hc_chart(zoomType = "x") %>%
+          hc_legend(align = "center", verticalAlign = "bottom",layout = "horizontal") %>%
+          hc_xAxis(title = list(text = "Date"),
+                   labels = list(format = '{value:%b %d %y}')) %>%
+          hc_yAxis(title = list(text = "Count"),
+                   tickInterval = 400,
+                   max = max(dose_by_day_sub$value_1)) %>%
+          hc_title(text = paste0("<b>Covid_19 Number of Vaccines Delivered Summary for ",input$covid_dose, ", NY by Date</b>")) %>%
+          
+          hc_plotOptions(area = list(lineWidth = 0.5)) %>%
+          hc_exporting(enabled = TRUE)
+        
+      })
+      
+    })
+
 })
-
-
