@@ -107,7 +107,9 @@ shinyServer(function(input, output) {
         'adults'='blue',
         'children'='green'
       )) +
-      labs(title='Overview: COVID-19 has caused a fall in shelter occupancy')
+      labs(title="Overview: COVID-19 has caused a fall in shelter occupancy",
+           subtitle='This is the result of different measures the city has taken during the pandemic in dealing with homelessness.',
+           color='Group')
     
     family_plot <- ggplot(shelter_data %>% mutate(
       single_adults_pct=Total.Single.Adults.in.Shelter / Total.Individuals.in.Shelter,
@@ -126,7 +128,7 @@ shinyServer(function(input, output) {
         'Children'='purple')) +
       labs(
         title='The pandemic has caused less families and more single adults to enter homeless shelters',
-        subtitle='The decrease in family occupancy in shelters during the pandemic explains the fall in overall occupancy.\nAt the same time, the proportion of single adults has risen significantly to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
+        subtitle='The decrease in family occupancy in shelters during the pandemic explains the fall in overall occupancy.\nDuring the pandemic, NYC implemented several different relief programs to provide housing for struggling families.\nAt the same time, however, the proportion of single adults has risen significantly to over a third.',
         color='Family situation') +
       xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
@@ -140,8 +142,9 @@ shinyServer(function(input, output) {
         'Single Women'='green'
       )) +
       labs(
-        title="The pandemic's increase of single adults in shelters is completely driven by the rise in the occupancy of single men.",
-        subtitle='This trend did not continue into 2021, when COVID-19 began to subside.\nThis explains why 2021 has shown a steeper decline in overall shelter occupancy than 2020.')
+        title="The pandemic's increase of single adults in shelters is completely driven by single men.",
+        subtitle="The city's relief programs may not have reached homeless single men as much as they reached homeless families.\nThis trend did not continue into 2021, when NYC moved adults in shelters to hotel rooms as a temporary measure\nto prevent the spread of COVID-19. It is still to be seen whether single men will continue to enter homeless shelters at\na higher rate than other groups after this measure expires.",
+        color='Adult Group')
     
     output$shelter_plot <- renderPlot(
       switch(input$shelter_plot_choice,
