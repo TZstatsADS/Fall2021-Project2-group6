@@ -27,10 +27,10 @@ if (!require("magrittr")) {
     install.packages("magrittr")
     library(magrittr)
 }
- if (!require("highcharter")) {
-     install.packages("highcharter")
-     library(highcharter)
- }
+# if (!require("mapview")) {
+#     install.packages("mapview")
+#     library(mapview)
+# }
 if (!require("leafsync")) {
     install.packages("leafsync")
     library(leafsync)
@@ -96,7 +96,7 @@ shinyServer(function(input, output) {
     
     ## Shelter plot section
     shelter_data <- read.csv('data/DHS_Daily_Report.csv')
-    shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%Y-%m-%d')
+    shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
     
     overview_plot <- ggplot(shelter_data) + 
       geom_line(aes(x=Date.of.Census, y=Total.Individuals.in.Shelter, color='total')) +
@@ -125,8 +125,8 @@ shinyServer(function(input, output) {
         'Adults in adult families'='green',
         'Children'='purple')) +
       labs(
-        title='COVID-19 changed the variety of inviduals who entered homeless shelters',
-        subtitle='While the overall occupancy of homeless shelters fell during the pandemic, the proportion of single adults has risen to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
+        title='The pandemic has caused less families and more single adults to enter homeless shelters',
+        subtitle='The decrease in family occupancy in shelters during the pandemic explains the fall in overall occupancy.\nAt the same time, the proportion of single adults has risen significantly to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
         color='Family situation') +
       xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
@@ -143,16 +143,13 @@ shinyServer(function(input, output) {
         title="The pandemic's increase of single adults in shelters is completely driven by the rise in the occupancy of single men.",
         subtitle='This trend did not continue into 2021, when COVID-19 began to subside.\nThis explains why 2021 has shown a steeper decline in overall shelter occupancy than 2020.')
     
-    
     output$shelter_plot <- renderPlot(
       switch(input$shelter_plot_choice,
              overview=overview_plot,
              family=family_plot,
              adult=adult_plot)
     )
-    
-    
-    
+
     ###______hospital section___________
     covid_data <- read.csv("data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
     covid_data$DATE_OF_INTEREST <- as.Date(covid_data$DATE_OF_INTEREST, '%m/%d/%Y')
@@ -279,11 +276,5 @@ shinyServer(function(input, output) {
       })
       
     })
-    
-    
-
 
 })
-
-
-
