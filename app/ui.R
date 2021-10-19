@@ -106,8 +106,7 @@ shinyUI(
                                   )
                                 )
                    ),
-                 # mainPanel(...)
-                 ),
+                 mainPanel(plotOutput('arrest_plot'))),
 
       #_______tab for hospital section__________
       tabPanel("Covid_19 cases and Vaccine",
