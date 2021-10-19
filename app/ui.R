@@ -90,8 +90,7 @@ shinyUI(
                  mainPanel(plotOutput('shelter_plot'))),
 
       #_______tab for hospital section__________
-      tabPanel("Hospital",
-
+      tabPanel("Covid_19 cases and Vaccine",
                 titlePanel("Updates on Covid_19 cases and Vaccine Distribution in New York City"),
                 span(tags$h2("Covid_19 Distribution")),
                 sidebarLayout(position = "left",
@@ -119,9 +118,10 @@ shinyUI(
                                 #                              height = "300px")),
                                 #     fluidRow(highchartOutput("his_dose",width = "100%",
                                 #                              height = "300px")))
-                               
+                                
                                 highchartOutput("his_covid"),
                                 highchartOutput("his_dose")
+                                
                               )
 
                               )
