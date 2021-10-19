@@ -7,6 +7,7 @@
 #
 #    http://shiny.rstudio.com/
 #
+
 ###############################Install Related Packages #######################
 if (!require("shiny")) {
     install.packages("shiny")
@@ -40,6 +41,15 @@ if (!require("ggplot2")) {
   install.packages("ggplot2")
   library(ggplot2)
 }
+if (!require("highcharter")) {
+  install.packages("highcharter")
+  library(highcharter)
+}
+if (!require("igraph")) {
+  install.packages("igraph")
+  library(igraph)
+}
+
 
 colors_pal <- c(
   "General" = "#4C00FF",
@@ -153,6 +163,16 @@ shinyServer(function(input, output) {
              family=family_plot,
              adult=adult_plot)
     )
+    
+    ### ARRESTS SECTION ###
+    # Load data
+    arrests_hist <- read.csv("arrests_data_hist.csv")
+    arrests_ytd <- read.csv("arrests_data_ytd.csv")
+    
+    
+    
+    
+    
 
     ###______hospital section___________
     covid_data <- read.csv("data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")

@@ -41,6 +41,10 @@ dose_var <- c("DOSE 1" = "dose1",
               "SINGLE" = "single",
               "ALL DOSES" = "alldose")
 
+arrest_type <- c("All" = "ALL",
+                 "Felony" = "FELONY ASSAULT",
+                 "Burglary" = "BURGLARY")
+
 
 complaint_types <- c(
   "General" = "General",
@@ -78,7 +82,7 @@ shinyUI(
         ),
 
 
-
+        ### TAB-HOMELESS SHELTERS ###
         tabPanel("Homeless Shelters",
                  sidebarPanel(
                    radioButtons('shelter_plot_choice',
@@ -88,6 +92,22 @@ shinyUI(
                                   'Single adult breakdown'='adult'))
                  ),
                  mainPanel(plotOutput('shelter_plot'))),
+        
+        tabPanel("Arrests",
+                 titlePanel("Updates on Arrest Trends in New York City"),
+                 sidebarPanel(
+                   radioButtons("arrest_plot_choice",
+                                "Arrest Chart Type",
+                                c("Total Arrests"="total",
+                                  "Burglaries"="burglaries",
+                                  "Felonies" = "felonies",
+                                  "Under Age" = "child",
+                                  "Adult" = "adult"
+                                  )
+                                )
+                   ),
+                 # mainPanel(...)
+                 ),
 
       #_______tab for hospital section__________
       tabPanel("Covid_19 cases and Vaccine",
