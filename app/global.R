@@ -101,34 +101,45 @@ library(readr)
 #write.csv(X311_Service_Requests_from_2010_to_Present,"temp.csv", row.names = FALSE)
 
 
-## Import data
-data = read_csv("data/311_filtered_preprocessed_data.csv")
-print("Preprocessing Data......")
-data = data %>%filter(`Created Date` >="2019-08-12")
-data$Latitude = as.numeric(formatC(data$Latitude,digits=2,format="f"))
-data$Longitude = as.numeric(formatC(data$Longitude,digits=2,format="f"))
-data$`Complaint Type` = ifelse(grepl("Covid",data$`Complaint Type`),"Virus (Covid-19)",data$`Complaint Type`)
-data$`Complaint Type` = ifelse(grepl("Safety",data$`Complaint Type`),"Neighborhood Condition",data$`Complaint Type`)
-data$`Complaint Type` = ifelse(grepl("Living Condition",data$`Complaint Type`),"Infrastructure Condition",data$`Complaint Type`)
-data_preCovid = data %>%filter(`Created Date` <="2020-03-12")
-data_duringCovid = data %>%filter(`Created Date` >="2020-08-12" & `Created Date` <"2021-03-12")
-data_postCovid = data %>%filter(`Created Date` >="2021-03-12")
+# ## Import data
+# data = read_csv("data/311_filtered_preprocessed_data.csv")
+# print("Preprocessing Data......")
+# ## Filter the dataset to include data after 2019-08-12
+# data = data %>%filter(`Created Date` >="2019-08-12")
+# ## Format latitude and longitude
+# data$Latitude = as.numeric(formatC(data$Latitude,digits=2,format="f"))
+# data$Longitude = as.numeric(formatC(data$Longitude,digits=2,format="f"))
+# ## Complaint Type Preprocessing
+# data$`Complaint Type` = ifelse(grepl("Covid",data$`Complaint Type`),"Virus (Covid-19)",data$`Complaint Type`)
+# data$`Complaint Type` = ifelse(grepl("Safety",data$`Complaint Type`),"Neighborhood Condition",data$`Complaint Type`)
+# data$`Complaint Type` = ifelse(grepl("Living Condition",data$`Complaint Type`),"Infrastructure Condition",data$`Complaint Type`)
+# ## PreCovid: 2019-08-12 - 2020-03-12
+# data_preCovid = data %>%filter(`Created Date` <="2020-03-12")
+# ## DuringCovid: 2020-08-12 - 2021-03-11
+# data_duringCovid = data %>%filter(`Created Date` >="2020-08-12" & `Created Date` <"2021-03-12")
+# ## PostCovid: 2021-03-12 - 2021-10-12
+# data_postCovid = data %>%filter(`Created Date` >="2021-03-12")
 
-## Groupby Complaint Type, Latitude, Longitude and count
-data_preCovid_count = data_preCovid %>% 
-  group_by(`Complaint Type`, Latitude,Longitude) %>%
-  tally()
+## Groupby Complaint Type, Latitude, Longitude and count, comment out because the file size is too large for deployment
+# data_preCovid_count = data_preCovid %>% 
+#   group_by(`Complaint Type`, Latitude,Longitude) %>%
+#   tally()
+data_preCovid_count = read_csv("data/311_preCovid.csv")
+## Add jitter to avoid latitude and longitude overlap
 data_preCovid_count$Latitude <- jitter(data_preCovid_count$Latitude)
 data_preCovid_count$Longitude <- jitter(data_preCovid_count$Longitude)
-data_duringCovid_count = data_duringCovid %>% 
-  group_by(`Complaint Type`, Latitude,Longitude) %>%
-  tally()
+## Comment out because the file size is too large for deployment
+# data_duringCovid_count = data_duringCovid %>% 
+#   group_by(`Complaint Type`, Latitude,Longitude) %>%
+#   tally()
+data_duringCovid_count = read_csv("data/311_duringCovid.csv")
 data_duringCovid_count$Latitude <- jitter(data_duringCovid_count$Latitude)
 data_duringCovid_count$Longitude <- jitter(data_duringCovid_count$Longitude)
-data_postCovid_count = data_postCovid %>% 
-  group_by(`Complaint Type`, Latitude,Longitude) %>%
-  tally()
+## Comment out because the file size is too large for deployment
+# data_postCovid_count = data_postCovid %>% 
+#   group_by(`Complaint Type`, Latitude,Longitude) %>%
+#   tally()
+data_postCovid_count = read_csv("data/311_postCovid.csv")
 data_postCovid_count$Latitude <- jitter(data_postCovid_count$Latitude)
 data_postCovid_count$Longitude <- jitter(data_postCovid_count$Longitude)
 print("Data Preprocessed......")
-
