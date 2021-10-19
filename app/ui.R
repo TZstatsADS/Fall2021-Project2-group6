@@ -93,6 +93,7 @@ shinyUI(
                  ),
                  mainPanel(plotOutput('shelter_plot'))),
         
+        ### TAB-ARRESTS ###
         tabPanel("Arrests",
                  titlePanel("Updates on Arrest Trends in New York City"),
                  sidebarPanel(
