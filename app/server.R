@@ -52,6 +52,10 @@ if (!require("tidyr")) {
   install.packages("tidyr")
   library(igraph)
 }
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
 
 
 colors_pal <- c(
