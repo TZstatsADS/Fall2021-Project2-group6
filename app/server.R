@@ -703,29 +703,13 @@ shinyServer(function(input, output) {
       geom_point(mapping=aes(x=Agency.Name, y=gap, size = abs(gap),color =  GrowthOrNot ) ) +
       labs(title='Working Hours Increased During The Pandemic in Most of Agency')
     
-    
-    observe({
-      output$SalaryHoursPlot <- renderPlot({
-        
-        i <- input$SalaryPlotin
-        
-        if(i == 'Gross_Salary_By_Year'){
-          By_borough_GrossSalary_plot
-        }
-        if(i == 'Gross_Salary_By_Agency_2019_2020'){
-          By_agency_GrossSalary_plot
-        }
-        if(i == 'Working_Hours_By_Year'){
-          
-          By_borough_WorkingHours_plot
-        }
-        if(i == 'Working_Hours_By_Agency_2019_2020'){
-          By_agency_WorkingHours_plot
-        }
-        
-      })
-    })
-
-
+    output$SalaryHoursPlot <- renderPlot(
+      switch(input$SalaryPlotin,
+             Gross_Salary_By_Year=By_borough_GrossSalary_plot,
+             Gross_Salary_By_Agency_2019_2020=By_agency_GrossSalary_plot,
+             Working_Hours_By_Year=By_borough_WorkingHours_plot,
+             Working_Hours_By_Agency_2019_2020=By_agency_WorkingHours_plot
+      )
+    )
 })
 
