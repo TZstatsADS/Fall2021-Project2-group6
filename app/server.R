@@ -1,4 +1,3 @@
-
 #
 # This is the server logic of a Shiny web application. You can run the
 # application by clicking 'Run App' above.
@@ -7,6 +6,7 @@
 #
 #    http://shiny.rstudio.com/
 #
+
 ###############################Install Related Packages #######################
 if (!require("shiny")) {
     install.packages("shiny")
@@ -40,6 +40,19 @@ if (!require("ggplot2")) {
   install.packages("ggplot2")
   library(ggplot2)
 }
+if (!require("highcharter")) {
+  install.packages("highcharter")
+  library(highcharter)
+}
+if (!require("igraph")) {
+  install.packages("igraph")
+  library(igraph)
+}
+if (!require("tidyr")) {
+  install.packages("tidyr")
+  library(igraph)
+}
+
 
 colors_pal <- c(
   "General" = "#4C00FF",
@@ -153,7 +166,62 @@ shinyServer(function(input, output) {
              family=family_plot,
              adult=adult_plot)
     )
-
+    
+    ### ARRESTS SECTION ###
+    # Load data
+    arrests_hist <- read.csv('data/arrests_data_hist.csv')
+    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
+    
+    # Pre-process, concatenate data
+    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests <- rbind(arrests_hist, arrests_ytd)
+    arrests %>% drop_na()
+    
+    # Format date, create year column
+    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
+    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
+    arrests <- subset(arrests, arrests$YEAR > '2006')
+    
+    # Create grouped DataFrames
+    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
+    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
+    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
+    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
+    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    
+    # Create plots
+    total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Arrests") +
+      xlab("Year")
+    felony_plot <- ggplot(data=felony_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Felonies") +
+      xlab("Year")
+    burglary_plot <- ggplot(data=burglary_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Burglaries") +
+      xlab("Year")
+    child_plot <- ggplot(data=child_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Children") +
+      xlab("Year")
+    adult_plot <- ggplot(data=adult_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Adults") +
+      xlab("Year")
+    
+    output$arrest_plot <- renderPlot(
+      switch(input$arrest_plot_choice,
+             total=total_arrests_plot,
+             burglaries=burglary_plot,
+             felonies=felony_plot,
+             child=child_plot,
+             adult=adult_plot
+             )
+      )
+    
     ###______hospital section___________
     covid_data <- read.csv("data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
     covid_data$DATE_OF_INTEREST <- as.Date(covid_data$DATE_OF_INTEREST, '%m/%d/%Y')
@@ -283,14 +351,7 @@ shinyServer(function(input, output) {
 
 })
 
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 ###############################Install Related Packages #######################
 if (!require("shiny")) {
     install.packages("shiny")
@@ -392,7 +453,9 @@ shinyServer(function(input, output) {
         'adults'='blue',
         'children'='green'
       )) +
-      labs(title='Overview: COVID-19 has caused a fall in shelter occupancy')
+      labs(title="Overview: COVID-19 has caused a fall in shelter occupancy",
+           subtitle='This is the result of different measures the city has taken during the pandemic in dealing with homelessness.',
+           color='Group')
     
     family_plot <- ggplot(shelter_data %>% mutate(
       single_adults_pct=Total.Single.Adults.in.Shelter / Total.Individuals.in.Shelter,
@@ -410,12 +473,12 @@ shinyServer(function(input, output) {
         'Adults in adult families'='green',
         'Children'='purple')) +
       labs(
-        title='COVID-19 changed the variety of inviduals who entered homeless shelters',
-        subtitle='While the overall occupancy of homeless shelters fell during the pandemic, the proportion of single adults has risen to over a third.\nNYC seemed to provide better support for struggling families than for single adults during the pandemic.',
+        title='The pandemic has caused less families and more single adults to enter homeless shelters',
+        subtitle='The decrease in family occupancy in shelters during the pandemic explains the fall in overall occupancy.\nDuring the pandemic, NYC implemented several different relief programs to provide housing for struggling families.\nAt the same time, however, the proportion of single adults has risen significantly to over a third.',
         color='Family situation') +
       xlab('Date of Census') + ylab('Percentage of total shelter occupancy')
     
-    adult_plot <- ggplot(shelter_data) +
+    single_adult_plot <- ggplot(shelter_data) +
       geom_line(aes(x=Date.of.Census, y=Total.Single.Adults.in.Shelter, color='Total Single Adults')) +
       geom_line(aes(x=Date.of.Census, y=Single.Adult.Men.in.Shelter, color='Single Men')) +
       geom_line(aes(x=Date.of.Census, y=Single.Adult.Women.in.Shelter, color='Single Women')) +
@@ -425,15 +488,70 @@ shinyServer(function(input, output) {
         'Single Women'='green'
       )) +
       labs(
-        title="The pandemic's increase of single adults in shelters is completely driven by the rise in the occupancy of single men.",
-        subtitle='This trend did not continue into 2021, when COVID-19 began to subside.\nThis explains why 2021 has shown a steeper decline in overall shelter occupancy than 2020.')
-    
+        title="The pandemic's increase of single adults in shelters is completely driven by single men.",
+        subtitle="The city's relief programs may not have reached homeless single men as much as they reached homeless families.\nThis trend did not continue into 2021, when NYC moved adults in shelters to hotel rooms as a temporary measure\nto prevent the spread of COVID-19. It is still to be seen whether single men will continue to enter homeless shelters at\na higher rate than other groups after this measure expires.",
+        color='Adult Group')    
     
     output$shelter_plot <- renderPlot(
       switch(input$shelter_plot_choice,
              overview=overview_plot,
              family=family_plot,
-             adult=adult_plot)
+             adult=single_adult_plot)
+    )
+    
+    ### ARRESTS SECTION ###
+    # Load data
+    arrests_hist <- read.csv('data/arrests_data_hist.csv')
+    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
+    
+    # Pre-process, concatenate data
+    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests <- rbind(arrests_hist, arrests_ytd)
+    arrests %>% drop_na()
+    
+    # Format date, create year column
+    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
+    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
+    arrests <- subset(arrests, arrests$YEAR > '2006')
+    
+    # Create grouped DataFrames
+    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
+    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
+    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
+    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
+    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    
+    # Create plots
+    total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Arrests") +
+      xlab("Year")
+    felony_plot <- ggplot(data=felony_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Felonies") +
+      xlab("Year")
+    burglary_plot <- ggplot(data=burglary_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Burglaries") +
+      xlab("Year")
+    child_plot <- ggplot(data=child_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Children") +
+      xlab("Year")
+    adult_plot <- ggplot(data=adult_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Adults") +
+      xlab("Year")
+    
+    output$arrest_plot <- renderPlot(
+      switch(input$arrest_plot_choice,
+             total=total_arrests_plot,
+             burglaries=burglary_plot,
+             felonies=felony_plot,
+             child=child_plot,
+             adult=adult_plot
+      )
     )
     
     #____________Doses_by_date__________________
@@ -563,13 +681,4 @@ shinyServer(function(input, output) {
           hc_exporting(enabled = TRUE)
       })
     })
-
-
-
-    
-    
-
-
 })
-
-
