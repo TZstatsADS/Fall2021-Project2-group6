@@ -147,6 +147,19 @@ shinyUI(
                               )
 
       )
+          ,
+          tabPanel("Salary and Working Hours",
+                    sidebarPanel(
+                           radioButtons('SalaryPlotin',
+                                        'Salary and Working Hours',
+                                         c("Gross Salary By Year" =  'Gross_Salary_By_Year',
+                                             "Gross Salary By NYC Agency 2019-2020" = 'Gross_Salary_By_Agency_2019_2020',
+                                             "Working Hours By Year" = 'Working_Hours_By_Year',
+                                             "Working Hours By NYC Agency 2019-2020" = 'Working_Hours_By_Agency_2019_2020')
+                                        )
+                                ),
+                      mainPanel(plotOutput('SalaryHoursPlot'))
+                    )
             
     ) #navbarPage closing  
 ) #Shiny UI closing    

@@ -52,6 +52,10 @@ if (!require("tidyr")) {
   install.packages("tidyr")
   library(igraph)
 }
+if (!require("tidyverse")) {
+  install.packages("tidyverse")
+  library(tidyverse)
+}
 
 
 colors_pal <- c(
@@ -651,4 +655,77 @@ shinyServer(function(input, output) {
           hc_exporting(enabled = TRUE)
       })
     })
+    
+
+    
+    ## Salary and Working Hours
+    By_borough_GrossSalary <- read.csv("data/By_borough_GrossSalary.csv")
+    By_borough_WorkingHours <- read.csv("data/By_borough_WorkingHours.csv")
+    By_agency_GrossSalary <- read.csv("data/By_agency_GrossSalary.csv")
+    By_agency_WorkingHours <- read.csv("data/By_agency_WorkingHours.csv")
+    
+    
+    By_borough_GrossSalary_plot <- By_borough_GrossSalary%>%
+      ggplot() +
+      geom_line(aes(x= Fiscal.Year, y=BRONX ,  color='Bronx'))+ 
+      geom_line(aes(x= Fiscal.Year, y=BROOKLYN ,  color='Brooklyn'))+ 
+      geom_line(aes(x= Fiscal.Year, y=MANHATTAN ,  color='Manhattan'))+ 
+      scale_color_manual(values=c(
+        'Bronx'='red',
+        'Brooklyn'='blue',
+        'Manhattan'='green'
+      )) +
+      labs(title='Average Gross Salary of Three Major Boroughs Increased During The Pandemic')
+    
+    
+    By_borough_WorkingHours_plot <- By_borough_WorkingHours%>%
+      ggplot() +
+      geom_line(aes(x= Fiscal.Year, y=BRONX ,  color='Bronx'))+ 
+      geom_line(aes(x= Fiscal.Year, y=BROOKLYN ,  color='Brooklyn'))+ 
+      geom_line(aes(x= Fiscal.Year, y=MANHATTAN ,  color='Manhattan'))+ 
+      scale_color_manual(values=c(
+        'Bronx'='red',
+        'Brooklyn'='blue',
+        'Manhattan'='green'
+      )) +
+      labs(title='Average Working Hours of Three Major Boroughs Increased During The Pandemic')
+    
+    
+    By_agency_GrossSalary_plot <- By_agency_GrossSalary%>%
+      ggplot()+
+      geom_point(mapping=aes(x=Agency.Name, y=gap, size = abs(gap), color =  GrowthOrNot ) )+
+      labs(title='Salary Increased During The Pandemic in Most of Agency')
+    
+    
+    
+    By_agency_WorkingHours_plot <- By_agency_WorkingHours%>%
+      ggplot()+
+      geom_point(mapping=aes(x=Agency.Name, y=gap, size = abs(gap),color =  GrowthOrNot ) ) +
+      labs(title='Working Hours Increased During The Pandemic in Most of Agency')
+    
+    
+    observe({
+      output$SalaryHoursPlot <- renderPlot({
+        
+        i <- input$SalaryPlotin
+        
+        if(i == 'Gross_Salary_By_Year'){
+          By_borough_GrossSalary_plot
+        }
+        if(i == 'Gross_Salary_By_Agency_2019_2020'){
+          By_agency_GrossSalary_plot
+        }
+        if(i == 'Working_Hours_By_Year'){
+          
+          By_borough_WorkingHours_plot
+        }
+        if(i == 'Working_Hours_By_Agency_2019_2020'){
+          By_agency_WorkingHours_plot
+        }
+        
+      })
+    })
+
+
 })
+
