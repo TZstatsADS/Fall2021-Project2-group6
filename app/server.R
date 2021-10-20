@@ -563,7 +563,122 @@ shinyServer(function(input, output) {
           hc_exporting(enabled = TRUE)
       })
     })
+    
+    
+    
+    
+    ## Salary and Working Hours
+    if (!require("tidyverse")) {
+      install.packages("tidyverse")
+      library(tidyverse)
+    }
+    
+    full_salary_source_data <- read.csv('data/Citywide_Payroll_Data__Fiscal_Year_(2).csv')
+    salary_source_data <- full_salary_source_data%>%
+      filter(Fiscal.Year>=2018)%>%
+      select(-(Last.Name:Mid.Init),-Agency.Start.Date,-Title.Description)%>%
+      filter(Leave.Status.as.of.June.30 == "ACTIVE")
+    
+    By_borough <-full_salary_source_data%>%
+      filter(Work.Location.Borough=="BRONX"|Work.Location.Borough=="BROOKLYN"|Work.Location.Borough=="MANHATTAN" |Work.Location.Borough=="Queens"|Work.Location.Borough== "Richmond"  )%>%
+      select(-(Last.Name:Mid.Init),-Agency.Start.Date,-Title.Description)%>%
+      filter(Leave.Status.as.of.June.30 == "ACTIVE")%>%
+      mutate(Working.Hours = Regular.Hours + OT.Hours )%>%
+      mutate(Gross.Salary = Regular.Gross.Paid + Total.OT.Paid + Total.Other.Pay)
+    
+    
+    By_borough_GrossSalary_plot <- By_borough%>%
+      group_by(Fiscal.Year, Work.Location.Borough)%>%
+      summarise(
+        MeanGrossSalary = mean(Gross.Salary),
+      )%>%
+      pivot_wider(names_from = Work.Location.Borough, values_from = MeanGrossSalary)%>%
+      select(BRONX:MANHATTAN)%>%
+      drop_na()%>%
+      ggplot() +
+      geom_line(aes(x= Fiscal.Year, y=BRONX ,  color='Bronx'))+ 
+      geom_line(aes(x= Fiscal.Year, y=BROOKLYN ,  color='Brooklyn'))+ 
+      geom_line(aes(x= Fiscal.Year, y=MANHATTAN ,  color='Manhattan'))+ 
+      scale_color_manual(values=c(
+        'Bronx'='red',
+        'Brooklyn'='blue',
+        'Manhattan'='green'
+      )) +
+      labs(title='Overview: Gross Salary Still Increase During The Pandemic')
+    
+    
+    By_borough_WorkingHours_plot <- By_borough%>%
+      group_by(Fiscal.Year, Work.Location.Borough)%>%
+      summarise(
+        MeanWorkingHours = mean(Working.Hours),
+      )%>%
+      pivot_wider(names_from = Work.Location.Borough, values_from = MeanWorkingHours)%>%
+      select(BRONX:MANHATTAN)%>%
+      drop_na()%>%
+      ggplot() +
+      geom_line(aes(x= Fiscal.Year, y=BRONX ,  color='Bronx'))+ 
+      geom_line(aes(x= Fiscal.Year, y=BROOKLYN ,  color='Brooklyn'))+ 
+      geom_line(aes(x= Fiscal.Year, y=MANHATTAN ,  color='Manhattan'))+ 
+      scale_color_manual(values=c(
+        'Bronx'='red',
+        'Brooklyn'='blue',
+        'Manhattan'='green'
+      )) +
+      labs(title='Overview: Working Hours Increase During The Pandemic')
 
+    
+    By_agency <-full_salary_source_data%>%
+      select(-(Last.Name:Mid.Init),-Agency.Start.Date,-Title.Description)%>%
+      filter(Leave.Status.as.of.June.30 == "ACTIVE")%>%
+      filter(Fiscal.Year==2019|Fiscal.Year==2020  )%>%
+      mutate(Working.Hours = Regular.Hours + OT.Hours )%>%
+      mutate(Gross.Salary = Regular.Gross.Paid + Total.OT.Paid + Total.Other.Pay)
+    
+    By_agency_GrossSalary_plot <- By_agency%>%
+      group_by(Agency.Name,Fiscal.Year)%>%
+      summarise(
+        MeanGrossSalary = mean(Gross.Salary)
+      )%>%
+      arrange(Agency.Name)%>%
+      pivot_wider(names_from = Fiscal.Year, values_from = MeanGrossSalary)%>%
+      mutate(gap = `2020`-`2019`, GrowthOrNot = gap/abs(gap))%>%
+      ggplot()+
+      geom_point(mapping=aes(x=Agency.Name, y=gap, size = abs(gap), color =  GrowthOrNot ) )
+    
+    
+    By_agency_WorkingHours_plot <- By_agency%>%
+      group_by(Agency.Name,Fiscal.Year)%>%
+      summarise(
+        MeanWorkingHours = mean(Working.Hours)
+      )%>%
+      arrange(Agency.Name)%>%
+      pivot_wider(names_from = Fiscal.Year, values_from = MeanWorkingHours)%>%
+      mutate(gap = `2020`-`2019`, GrowthOrNot = gap/abs(gap))%>%
+      ggplot()+
+      geom_point(mapping=aes(x=Agency.Name, y=gap, size = abs(gap),color =  GrowthOrNot ) ) 
+    
+    
+    observe({
+      output$SalaryHoursPlot <- renderPlot({
+        
+        i <- input$SalaryPlotin
+        
+        if(i == 'Gross_Salary_By_Year'){
+          By_borough_GrossSalary_plot
+        }
+        if(i == 'Gross_Salary_By_Agency_2019_2020'){
+          By_agency_GrossSalary_plot
+        }
+        if(i == 'Working_Hours_By_Year'){
+          
+          By_borough_WorkingHours_plot
+        }
+        if(i == 'Working_Hours_By_Agency_2019_2020'){
+          By_agency_WorkingHours_plot
+        }
+
+      })
+    })
 
 
     
