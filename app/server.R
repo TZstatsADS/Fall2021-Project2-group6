@@ -168,27 +168,12 @@ shinyServer(function(input, output) {
     )
     
     ### ARRESTS SECTION ###
-    # Load data
-    arrests_hist <- read.csv('data/arrests_data_hist.csv')
-    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
-    
-    # Pre-process, concatenate data
-    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
-    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
-    arrests <- rbind(arrests_hist, arrests_ytd)
-    arrests %>% drop_na()
-    
-    # Format date, create year column
-    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
-    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
-    arrests <- subset(arrests, arrests$YEAR > '2006')
-    
-    # Create grouped DataFrames
-    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
-    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
-    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
-    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
-    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    # Load grouped data
+    arrests_yr <- read.csv("data/arrests_yr.csv")
+    felony_yr <- read.csv("data/felony_yr.csv")
+    burglary_yr <- read.csv("data/burglary_yr.csv")
+    child_yr <- read.csv("data/child_yr.csv")
+    adult_yr <- read.csv("data/adult_yr.csv")
     
     # Create plots
     total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
@@ -500,27 +485,12 @@ shinyServer(function(input, output) {
     )
     
     ### ARRESTS SECTION ###
-    # Load data
-    arrests_hist <- read.csv('data/arrests_data_hist.csv')
-    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
-    
-    # Pre-process, concatenate data
-    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
-    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
-    arrests <- rbind(arrests_hist, arrests_ytd)
-    arrests %>% drop_na()
-    
-    # Format date, create year column
-    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
-    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
-    arrests <- subset(arrests, arrests$YEAR > '2006')
-    
-    # Create grouped DataFrames
-    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
-    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
-    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
-    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
-    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    # Load grouped data
+    arrests_yr <- read.csv("data/arrests_yr.csv")
+    felony_yr <- read.csv("data/felony_yr.csv")
+    burglary_yr <- read.csv("data/burglary_yr.csv")
+    child_yr <- read.csv("data/child_yr.csv")
+    adult_yr <- read.csv("data/adult_yr.csv")
     
     # Create plots
     total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
