@@ -33,6 +33,7 @@ Github Repo [link]()
 
 + **Contribution statement**: ([default](doc/a_note_on_contributions.md)) 
 + Hui Xiang initialized the team connection, found all the available dataset, implemented 311 Request Map, helped teammates debug the code, contributed to the README file.
++ Nikhil Cherukupalli preprocessed the arrest data, generated the histograms/UI for the arrests panel, refactored the project code and contributed to the README file.
 
 
 Following [suggestions](http://nicercode.github.io/blog/2013-04-05-projects/) by [RICH FITZJOHN](http://nicercode.github.io/about/#Team) (@richfitz). This folder is orgarnized as follows.
