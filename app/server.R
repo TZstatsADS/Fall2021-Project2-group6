@@ -7,6 +7,7 @@
 #
 #    http://shiny.rstudio.com/
 #
+
 ###############################Install Related Packages #######################
 if (!require("shiny")) {
     install.packages("shiny")
@@ -40,6 +41,15 @@ if (!require("ggplot2")) {
   install.packages("ggplot2")
   library(ggplot2)
 }
+if (!require("highcharter")) {
+  install.packages("highcharter")
+  library(highcharter)
+}
+if (!require("igraph")) {
+  install.packages("igraph")
+  library(igraph)
+}
+
 
 colors_pal <- c(
   "General" = "#4C00FF",
@@ -153,7 +163,62 @@ shinyServer(function(input, output) {
              family=family_plot,
              adult=adult_plot)
     )
-
+    
+    ### ARRESTS SECTION ###
+    # Load data
+    arrests_hist <- read.csv('data/arrests_data_hist.csv')
+    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
+    
+    # Pre-process, concatenate data
+    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests <- rbind(arrests_hist, arrests_ytd)
+    arrests %>% drop_na()
+    
+    # Format date, create year column
+    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
+    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
+    arrests <- subset(arrests, arrests$YEAR > '2006')
+    
+    # Create grouped DataFrames
+    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
+    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
+    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
+    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
+    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    
+    # Create plots
+    total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Arrests") +
+      xlab("Year")
+    felony_plot <- ggplot(data=felony_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Felonies") +
+      xlab("Year")
+    burglary_plot <- ggplot(data=burglary_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Burglaries") +
+      xlab("Year")
+    child_plot <- ggplot(data=child_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Children") +
+      xlab("Year")
+    adult_plot <- ggplot(data=adult_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Adults") +
+      xlab("Year")
+    
+    output$arrest_plot <- renderPlot(
+      switch(input$arrest_plot_choice,
+             total=total_arrests_plot,
+             burglaries=burglary_plot,
+             felonies=felony_plot,
+             child=child_plot,
+             adult=adult_plot
+             )
+      )
+    
     ###______hospital section___________
     covid_data <- read.csv("data/COVID-19_Daily_Counts_of_Cases__Hospitalizations__and_Deaths.csv")
     covid_data$DATE_OF_INTEREST <- as.Date(covid_data$DATE_OF_INTEREST, '%m/%d/%Y')
@@ -283,14 +348,7 @@ shinyServer(function(input, output) {
 
 })
 
-#
-# This is the server logic of a Shiny web application. You can run the
-# application by clicking 'Run App' above.
-#
-# Find out more about building applications with Shiny here:
-#
-#    http://shiny.rstudio.com/
-#
+
 ###############################Install Related Packages #######################
 if (!require("shiny")) {
     install.packages("shiny")
@@ -436,6 +494,61 @@ shinyServer(function(input, output) {
              adult=adult_plot)
     )
     
+    ### ARRESTS SECTION ###
+    # Load data
+    arrests_hist <- read.csv('data/arrests_data_hist.csv')
+    arrests_ytd <- read.csv('data/arrests_data_ytd.csv')
+    
+    # Pre-process, concatenate data
+    arrests_hist <- arrests_hist[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests_ytd <- arrests_ytd[, c('ARREST_DATE', 'OFNS_DESC', 'AGE_GROUP')]
+    arrests <- rbind(arrests_hist, arrests_ytd)
+    arrests %>% drop_na()
+    
+    # Format date, create year column
+    arrests$DATE <- as.Date(as.character(arrests$ARREST_DATE), format="%m/%d/%Y")
+    arrests$YEAR <- format(as.POSIXct(arrests$DATE, format="%Y-%m-%d"), format="%Y")
+    arrests <- subset(arrests, arrests$YEAR > '2006')
+    
+    # Create grouped DataFrames
+    arrests_yr = arrests %>% group_by(YEAR) %>% tally()
+    felony_yr = arrests[arrests$OFNS_DESC == "FELONY ASSAULT", ] %>% group_by(YEAR) %>% tally()
+    burglary_yr = arrests[arrests$OFNS_DESC == "BURGLARY", ] %>% group_by(YEAR) %>% tally()
+    child_yr = arrests[arrests$AGE_GROUP == "<18", ] %>% group_by(YEAR) %>% tally()
+    adult_yr = arrests[arrests$AGE_GROUP != "<18", ] %>% group_by(YEAR) %>% tally()
+    
+    # Create plots
+    total_arrests_plot <- ggplot(data=arrests_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Arrests") +
+      xlab("Year")
+    felony_plot <- ggplot(data=felony_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Felonies") +
+      xlab("Year")
+    burglary_plot <- ggplot(data=burglary_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Burglaries") +
+      xlab("Year")
+    child_plot <- ggplot(data=child_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Children") +
+      xlab("Year")
+    adult_plot <- ggplot(data=adult_yr, aes(x=YEAR, y=n)) +
+      geom_bar(stat="identity") +
+      ylab("No. of Crimes Committed by Adults") +
+      xlab("Year")
+    
+    output$arrest_plot <- renderPlot(
+      switch(input$arrest_plot_choice,
+             total=total_arrests_plot,
+             burglaries=burglary_plot,
+             felonies=felony_plot,
+             child=child_plot,
+             adult=adult_plot
+      )
+    )
+    
     #____________Doses_by_date__________________
     dose_data <- read.csv("data/doses-by-day.csv")
     dose_data$DATE <- as.Date(dose_data$DATE, "%Y-%m-%d")
@@ -563,13 +676,6 @@ shinyServer(function(input, output) {
           hc_exporting(enabled = TRUE)
       })
     })
-
-
-
-    
-    
-
-
 })
 
 
