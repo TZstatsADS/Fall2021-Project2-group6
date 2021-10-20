@@ -27,7 +27,7 @@ Term: Fall 2021
 	+ Yixuan Zou
 
 + **Project summary**: By analyzing the data from multiple NYC agency sources, our shiny application can demonstrate the impact of Covid-19 on people's daily life at New York city. Our applications reveals a large shift of people's life including living style, people's financial status, living condition and vaccine distribution since the explosion of Covid-19 virus.
-+ In our application, we divided our data exploration into 3 categories, including 311 service request [link](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9), homeless shelters and hospitals. These aspects are all highly related to people's daily life and therefore we can analyze these data to help us better understand influence of Covid 19. These will help us know how to better improve people's living standard given this major life change.
++ In our application, we divided our data exploration into 3 categories, including 311 service request [link](https://data.cityofnewyork.us/Social-Services/311-Service-Requests-from-2010-to-Present/erm2-nwe9), homeless shelters and hospitals, cases and vaccination distributions. These aspects are all highly related to people's daily life and therefore we can analyze these data to help us better understand influence of Covid 19. These will help us know how to better improve people's living standard given this major life change.
 + Here is the link to our shiny app [link](https://matthewpark319.shinyapps.io/ADSProject2_Group6/)
 Github Repo [link]()
 
