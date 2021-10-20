@@ -64,7 +64,7 @@ shinyUI(
         tabPanel("311 Complaint Map",icon = icon("map-marker-alt"),
              div(class="outer",
                  tags$head(
-                   includeCSS('../lib/styles.css')
+                   includeCSS('lib/styles.css')
                  ),
                  leafletOutput("map", width="100%", height="100%"),
                  ## Control panel to select the covid period and complaint types
