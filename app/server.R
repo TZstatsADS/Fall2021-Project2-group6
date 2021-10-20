@@ -707,21 +707,12 @@ shinyServer(function(input, output) {
     observe({
       output$SalaryHoursPlot <- renderPlot({
         
-        i <- input$SalaryPlotin
-        
-        if(i == 'Gross_Salary_By_Year'){
-          By_borough_GrossSalary_plot
-        }
-        if(i == 'Gross_Salary_By_Agency_2019_2020'){
-          By_agency_GrossSalary_plot
-        }
-        if(i == 'Working_Hours_By_Year'){
-          
-          By_borough_WorkingHours_plot
-        }
-        if(i == 'Working_Hours_By_Agency_2019_2020'){
-          By_agency_WorkingHours_plot
-        }
+        switch(input$SalaryPlotin,
+               'Gross_Salary_By_Year'=By_borough_GrossSalary_plot,
+               'Gross_Salary_By_Agency_2019_2020' = By_agency_GrossSalary_plot,
+               'Working_Hours_By_Year'=By_borough_WorkingHours_plot,
+               'Working_Hours_By_Agency_2019_2020'=By_agency_WorkingHours_plot
+        )
         
       })
     })
