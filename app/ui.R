@@ -41,6 +41,10 @@ dose_var <- c("DOSE 1" = "dose1",
               "SINGLE" = "single",
               "ALL DOSES" = "alldose")
 
+arrest_type <- c("All" = "ALL",
+                 "Felony" = "FELONY ASSAULT",
+                 "Burglary" = "BURGLARY")
+
 
 complaint_types <- c(
   "General" = "General",
@@ -60,7 +64,7 @@ shinyUI(
         tabPanel("311 Complaint Map",icon = icon("map-marker-alt"),
              div(class="outer",
                  tags$head(
-                   includeCSS('../lib/styles.css')
+                   includeCSS('lib/styles.css')
                  ),
                  leafletOutput("map", width="100%", height="100%"),
                  ## Control panel to select the covid period and complaint types
@@ -78,7 +82,7 @@ shinyUI(
         ),
 
 
-
+        ### TAB-HOMELESS SHELTERS ###
         tabPanel("Homeless Shelters",
                  sidebarPanel(
                    radioButtons('shelter_plot_choice',
@@ -88,6 +92,22 @@ shinyUI(
                                   'Single adult breakdown'='adult'))
                  ),
                  mainPanel(plotOutput('shelter_plot'))),
+        
+        ### TAB-ARRESTS ###
+        tabPanel("Arrests",
+                 titlePanel("Updates on Arrest Trends in New York City"),
+                 sidebarPanel(
+                   radioButtons("arrest_plot_choice",
+                                "Arrest Chart Type",
+                                c("Total Arrests"="total",
+                                  "Burglaries"="burglaries",
+                                  "Felonies" = "felonies",
+                                  "Under Age" = "child",
+                                  "Adult" = "adult"
+                                  )
+                                )
+                   ),
+                 mainPanel(plotOutput('arrest_plot'))),
 
       #_______tab for hospital section__________
       tabPanel("Covid_19 cases and Vaccine",
