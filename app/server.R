@@ -381,7 +381,7 @@ shinyServer(function(input, output) {
     
     ## Shelter plot section
     shelter_data <- read.csv('data/DHS_Daily_Report.csv')
-    shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%Y-%m-%d')
+    shelter_data$Date.of.Census <- as.Date(shelter_data$Date.of.Census, '%m/%d/%Y')
     
     overview_plot <- ggplot(shelter_data) + 
       geom_line(aes(x=Date.of.Census, y=Total.Individuals.in.Shelter, color='total')) +
